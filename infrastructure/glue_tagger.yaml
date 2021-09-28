@@ -1,0 +1,48 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Glue Tagger Lambda Function
+
+Resources:
+  GlueTaggerFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+      ManagedPolicyArns:
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: GlueTaggerFunctionRolePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action: "cloudformation:DescribeStacks"
+                Effect: "Allow"
+                Resource: "*"
+              - Action:
+                  - "glue:TagResource"
+                  - "glue:UntagResource"
+                Effect: "Allow"
+                Resource: "*"
+
+  GlueTaggerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: glue_tagger_cr/
+      Role: !GetAtt GlueTaggerFunctionRole.Arn
+      FunctionName: "GlueTagger"
+      Handler: "handler.lambda_handler"
+      Runtime: "python3.8"
+
+Outputs:
+  GlueTagger:
+    Value: !GetAtt GlueTaggerFunction.Arn
+    Export:
+      Name: GlueTaggerFunction

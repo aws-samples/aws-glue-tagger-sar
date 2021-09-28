@@ -1,0 +1,88 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Test Stack for AWS Glue Tagger SAR Application
+
+Resources:
+  # Add SAR application to your stack. 
+  # The app can also be deployed in a different stack and be reused across CloudFormation stacks within your AWS account
+  AWSGlueTagger:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
+        SemanticVersion: 0.1.3
+
+  # Add your AWS Glue resources to the template. Can be any type of resource i.e. not limited to Jobs
+  MyJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: "*"
+                Resource: "*"
+  
+  MyJob1:
+    Type: AWS::Glue::Job
+    Properties:
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://aws-glue-scripts//prod-job1
+      DefaultArguments:
+        "--job-bookmark-option": job-bookmark-enable
+      ExecutionProperty:
+        MaxConcurrentRuns: 2
+      MaxRetries: 0
+      Name: cf-job1
+      Role:
+        Ref: MyJobRole
+
+  MyJob2:
+    Type: AWS::Glue::Job
+    Properties:
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://aws-glue-scripts//prod-job2
+      DefaultArguments:
+        "--job-bookmark-option": job-bookmark-enable
+      ExecutionProperty:
+        MaxConcurrentRuns: 2
+      MaxRetries: 0
+      Name: cf-job2
+      Role:
+        Ref: MyJobRole
+
+  # Create Custom Resource (CR) using !ImportValue created by AWS Glue Tagger SAR application
+  # i.e use !ImportValue GlueTaggerFunction as ServiceToken for the CR
+  # To learn more about CRs visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html
+  # NOTE: Make sure 'DependsOn' is added to the custom resource to ensure all Glue resources are created first before calling the CR
+  GlueTaggerTestStack:
+    Type: 'Custom::GlueTaggerTestStack'
+    DependsOn:
+      - 'MyJob1'
+      - 'MyJob2'
+      - 'AWSGlueTagger'
+    Properties:
+      ServiceToken: !ImportValue GlueTaggerFunction
+      ResourceArn:
+        - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
+        - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob2}'
+      Tags:
+        - 'cost_id=0000'
+        - 'owner=myorg'
