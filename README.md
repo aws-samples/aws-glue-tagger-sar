@@ -4,7 +4,9 @@ All CloudFormation stack-level tags, including automatically created tags, are p
 
 ## **Usage**
 
-Add AWS Glue Tagger SAR application to your CloudFormation stack or CDK application. E.g.:
+Deploy to your AWS account with one click via the [Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/us-east-1/621462903008/aws-glue-tagger)
+
+Alternatively, you can add the AWS Glue Tagger SAR application to your CloudFormation stack or CDK application. E.g.:
 
 ```yaml
 # Add SAR application to your stack. 
@@ -16,7 +18,7 @@ AWSGlueTagger:
       ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
 ```
 
-During the deployment, the SAR application creates a nested stack that provisions the following resources and outputs:
+After it's deployment, the SAR application creates a nested stack that provisions the following resources and outputs:
 
 ![AWS Glue Tagger Resources](assets/aws-glue-tagger-resources.png)
 ![AWS Glue Tagger Outputs](assets/aws-glue-tagger-outputs.png)
