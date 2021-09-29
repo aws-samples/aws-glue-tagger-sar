@@ -1,6 +1,6 @@
 # AWS Glue Tagger
 
-All CloudFormation stack-level tags, including automatically created tags, are propagated to resources that CloudFormation supports. AWS Glue resources do not support this feature at the moment. By using AWS Glue Tagger, you benefit from proper tagging on all of your AWS Glue resources which allows you to have better tracking of costs & resource allocation in your AWS accounts. AWS Glue Tagger automatically propagates tags from your CloudFormation stacks to the AWS Glue resources that you specify. Alternatively, you can override the stack tags by providing specific tags that you want to use to tag your AWS Glue resources.
+All CloudFormation stack-level tags, including automatically created tags, are propagated to resources that CloudFormation supports. AWS Glue resources do not support this feature at the moment. By using AWS Glue Tagger, you benefit from proper tagging on all of your AWS Glue resources which allows you to have better tracking of costs & resource allocation in your AWS accounts. AWS Glue Tagger automatically propagates tags from your CloudFormation stacks to the AWS Glue resources that you specify. Alternatively, you can override the stack tags by providing specific tags that you want to use to tag your AWS Glue resources. AWS Glue Tagger also supports adding/updating tags of AWS Glue resources without the need to change the resource itself. 
 
 ## **Usage**
 
