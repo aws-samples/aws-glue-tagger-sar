@@ -1,0 +1,16 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: Test Stack for AWS Glue Tagger SAR Application
+
+Resources:
+  # Add SAR application to your stack.
+  # The app can also be deployed in a different stack and be reused across CloudFormation stacks within your AWS account
+  AWSGlueTagger:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
+        SemanticVersion: 1.0.0
