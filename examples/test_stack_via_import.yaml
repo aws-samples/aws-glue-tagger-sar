@@ -1,0 +1,63 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: Test Stack for AWS Glue Tagger SAR Application
+
+Resources:
+  # Add your AWS Glue resources to the template. Can be any type of resource i.e. not limited to Jobs
+  MyJobRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - glue.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: "*"
+                Resource: "*"
+  
+  MyJob3:
+    Type: AWS::Glue::Job
+    Properties:
+      Command:
+        Name: glueetl
+        ScriptLocation: s3://aws-glue-scripts//prod-job3
+      DefaultArguments:
+        "--job-bookmark-option": job-bookmark-enable
+      ExecutionProperty:
+        MaxConcurrentRuns: 2
+      MaxRetries: 0
+      Name: cf-job3
+      Role:
+        Ref: MyJobRole
+
+  # Create Custom Resource (CR) using AWS Glue Tagger SAR application
+  # To learn more about CRs visit https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-custom-resources.html
+  # NOTE: Use !ImportValue GlueTaggerFunction as ServiceToken for the CR if the CR is in a different stack than the SAR application
+  # NOTE: Use !GetAtt AWSGlueTagger.Outputs.GlueTagger as ServiceToken for the CR if the CR is within the same stack as the SAR application
+  # NOTE: Make sure 'DependsOn' is added to the custom resource to ensure all Glue resources are created first before calling the CR
+  GlueTaggerTestStack:
+    Type: 'Custom::GlueTaggerTestStack'
+    DependsOn:
+      - 'MyJob3'
+    Properties:
+      ServiceToken:
+        Fn::ImportValue: GlueTaggerFunction
+      ResourceArn:
+        - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
+      Tags:
+        - 'cost_id=8888'
+        - 'owner=myorg'
+        - 'project=myproject'

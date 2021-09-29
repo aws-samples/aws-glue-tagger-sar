@@ -85,7 +85,6 @@ Resources:
         - Outputs.GlueTagger
       ResourceArn:
         - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
-        - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob2}'
       Tags:
         - 'cost_id=0000'
         - 'owner=myorg'
