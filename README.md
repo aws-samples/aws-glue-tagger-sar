@@ -39,6 +39,8 @@ By default, the CR propagates the parent stack tags to the resources provided in
 
 ```yaml
 # Create Custom Resource (CR) to tag Glue resources (propagate parent stack tags)
+# NOTE: Use !ImportValue GlueTaggerFunction as ServiceToken for the CR if the CR is in a different stack than the SAR application
+# NOTE: Use !GetAtt AWSGlueTagger.Outputs.GlueTagger as ServiceToken for the CR if the CR is within the same stack as the SAR application
 GlueTaggerTestStack:
   Type: 'Custom::GlueTaggerTestStack'
   DependsOn:
@@ -54,6 +56,8 @@ The following example overrides the parent stack tags and propagates the specifi
 
 ```yaml
 # Create Custom Resource (CR) to tag Glue resources (propagate specified tags in Custom Resource)
+# NOTE: Use !ImportValue GlueTaggerFunction as ServiceToken for the CR if the CR is in a different stack than the SAR application
+# NOTE: Use !GetAtt AWSGlueTaggerLogicalID.Outputs.GlueTagger as ServiceToken for the CR if the CR is within the same stack as the SAR application
 GlueTaggerTestStack:
   Type: 'Custom::GlueTaggerTestStack'
   DependsOn:
