@@ -13,7 +13,7 @@ Resources:
     Properties:
       Location:
         ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
-        SemanticVersion: 1.0.0
+        SemanticVersion: 1.1.0
 
   # Add your AWS Glue resources to the template. Can be any type of resource i.e. not limited to Jobs
   MyJobRole:
@@ -87,6 +87,9 @@ Resources:
         - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
         - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob2}'
       Tags:
-        - 'cost_id=0000'
-        - 'owner=myorg'
-        - 'project=myproject'
+        - Key: "cost_id"
+          Value: "0000"
+        - Key: "owner"
+          Value: "myorg"
+        - Key: "project"
+          Value: "myproject"

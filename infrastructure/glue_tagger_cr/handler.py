@@ -38,10 +38,6 @@ def delete(event, context):
     logger.info("Got Delete")
 
 
-def prepare_tags_before_tagging(tags):
-    return {tag['Key']: tag['Value'] for tag in tags}
-
-
 def get_tags_from_stack(stack_id):
     stack = cf.Stack(stack_id)
     tags = stack.tags
@@ -50,38 +46,48 @@ def get_tags_from_stack(stack_id):
 
 
 def get_tags_from_props(tags_from_props):
-    tags = [{'Key': parts[0], 'Value': parts[1]} for tag in tags_from_props if (parts := tag.split("="))]
-    logger.info(f'Tags from props {tags}')
-    return tags
+    logger.info(f'Tags from props {tags_from_props}')
+    return tags_from_props
+
+
+def get_tags(tags_from_props, tags_from_stack):
+    def prepare_tags_for_tagging(tags):
+        return {} if not tags else {tag['Key']: tag['Value'] for tag in tags}
+    tags = [
+        *tags_from_props,
+        *tags_from_stack
+    ]
+    return prepare_tags_for_tagging(tags)
+
+
+def get_resource_arns(resource_arns):
+    return resource_arns if isinstance(resource_arns, list) else [resource_arns]
 
 
 def create_or_update(event):
     try:
         stack_id = event['StackId']
         properties = event['ResourceProperties']
-        resource_arns = properties.get('ResourceArn')
-        tags_from_props = properties.get('Tags')
 
-        if not resource_arns:
-            logger.warning('No ARNs have been provided to the stack. Nothing tagged')
-            return
-
-        resource_arns = resource_arns if isinstance(resource_arns, list) else [resource_arns]
-
-        if tags_from_props:
-            tags = get_tags_from_props(tags_from_props)
-        else:
-            tags = get_tags_from_stack(stack_id)
-
+        # Get and prepare tags to be added to the resources
+        tags_from_props = get_tags_from_props(properties.get('Tags', {}))
+        tags_from_stack = get_tags_from_stack(stack_id)
+        tags = get_tags(tags_from_props, tags_from_stack)
         if not tags:
             logger.warning('No tags have been provided to the stack nor to the application. Nothing tagged')
             return
 
-        tags_to_add = prepare_tags_before_tagging(tags)
+        # Get and prepare resource arns to be tagged
+        resource_arns = get_resource_arns(properties.get('ResourceArn', []))
+        if not resource_arns:
+            logger.warning('No ARNs have been provided to the stack. Nothing tagged')
+            return
+
+        # Tag resources
         for resource_arn in resource_arns:
             glue.tag_resource(
                 ResourceArn=resource_arn,
-                TagsToAdd=tags_to_add
+                TagsToAdd=tags
             )
     except:
         logger.exception('on create error')
