@@ -1,13 +1,13 @@
 # AWS Glue Tagger
 
-All CloudFormation stack-level tags, including automatically created tags, are propagated to resources that CloudFormation supports. AWS Glue resources do not support this feature at the moment. By using AWS Glue Tagger, you benefit from proper tagging on all of your AWS Glue resources which allows you to have better tracking of costs & resource allocation in your AWS accounts. AWS Glue Tagger automatically propagates tags from your CloudFormation stacks to the AWS Glue resources that you specify. Alternatively, you can override the stack tags by providing specific tags that you want to use to tag your AWS Glue resources.
+All CloudFormation stack-level tags, including automatically created tags, are propagated to resources that CloudFormation supports. AWS Glue resources do not support this feature at the moment. By using AWS Glue Tagger, you benefit from proper tagging on all of your AWS Glue resources which allows you to have better tracking of costs & resource allocation in your AWS accounts. AWS Glue Tagger automatically propagates tags from your CloudFormation stacks to the AWS Glue resources that you specify. Alternatively, you can override the stack tags by providing specific tags that you want to use to tag your AWS Glue resources. AWS Glue Tagger also supports adding/updating tags of AWS Glue resources without the need to change the resource itself. 
 
 ## **Usage**
 
-Deploy to your AWS account with one click via the [Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/us-east-1/621462903008/aws-glue-tagger)
+There are the following ways AWS Glue Tagger can be deployed and used (keep in mind that the GlueTaggerFunction itself can de deployed only once):
 
-Alternatively, you can add the AWS Glue Tagger SAR application to your CloudFormation stack or CDK application. E.g.:
-
+1. Deploy manually to your AWS account with one click via the [Serverless Application Repository](https://serverlessrepo.aws.amazon.com/applications/us-east-1/621462903008/aws-glue-tagger).
+2. Or include the following resource in your AWS CloudFormation stack with the resources you want to tag (see examples/test_stack_including_sar.yaml):
 ```yaml
 # Add SAR application to your stack. 
 AWSGlueTagger:
@@ -17,6 +17,7 @@ AWSGlueTagger:
       SemanticVersion: 1.1.0
       ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
 ```
+3. Or create a standalone AWS CloudFormation stack to reuse across different stacks (see examples/test_stack_only_sar.yaml, examples/test_stack_via_import.yaml).
 
 After it's deployment, the SAR application creates a nested stack that provisions the following resources and outputs:
 
@@ -27,7 +28,7 @@ These are:
 
   * Resource - AWS Lambda Function - GlueTaggerFunction
   * Resource - AWS IAM Role - GlueTaggerFunctionRole
-  * Output - Stack Export Name - GlueTaggerFunction (maps to GlueTaggerFunction Arn)
+  * Output - Stack Export Name - GlueTaggerFunction (contains GlueTaggerFunction Arn)
 
 ## **Tagging AWS Glue Resources**
 
@@ -77,7 +78,7 @@ GlueTaggerTestStack:
       - Key: "project"
         Value: "myproject"
 ```
-You can find a complete example under [examples/test_stack.yaml](examples/test_stack.yaml). If you want to deploy the test stack to your AWS accout, you can issue the following commands in your CLI. 
+You can find a complete example under [examples/test_including_stack.yaml](examples/test_stack_including_sar.yaml). If you want to deploy the test stack to your AWS accout, you can issue the following commands in your CLI. 
 
 **NOTE:** Please make sure to: 
   * have the correct access keys and permissions set in your CLI session for the AWS account where you want to deploy the test stack
@@ -88,7 +89,7 @@ cd examples
 
 # Package test stack template
 aws cloudformation package \
-  --template-file test_stack.yaml \
+  --template-file test_stack_including_sar.yaml \
   --output-template-file packaged_test_stack.yaml \
   --s3-bucket <BUCKET_NAME>
 
@@ -105,9 +106,11 @@ aws cloudformation deploy \
 If you would like to deploy the AWS Glue Tagger resources to your AWS account directly from the project repo (not via SAR), you can run the `deploy.sh` script in the project root. 
 
 **NOTE:** Please make sure to: 
-  * have the correct access keys and permissions set in your CLI session for the AWS account where you want to deploy the test stack
-  * have an S3 bucket which can be used by CloudFormation to store assets during the `aws cloudformation package` process within `deploy.sh`
-  * Change S3 bucket name in `deploy.sh` i.e. `export S3_BUCKET_ASSETS=<CHANGE_ME>`
+  * Have the correct access keys and permissions set in your CLI session for the AWS account where you want to deploy the test stack
+  * Have an S3 bucket which can be used by CloudFormation to store assets during the `aws cloudformation package` process within `deploy.sh`
+  * Note: S3 bucket must be in the same region as where the stack will be deployed
+  * Use the following environment variables to specify where assets will be stored: S3_BUCKET_ASSETS, S3_PREFIX_ASSETS
+  * Execute `deploy.sh` passing values, for example `S3_BUCKET_ASSETS=... S3_PREFIX_ASSETS=... ./deploy.sh`
 
 To contribute to this project please see [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 

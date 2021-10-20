@@ -2,19 +2,9 @@
 # SPDX-License-Identifier: MIT-0
 
 AWSTemplateFormatVersion: 2010-09-09
-Transform: AWS::Serverless-2016-10-31
 Description: Test Stack for AWS Glue Tagger SAR Application
 
 Resources:
-  # Add SAR application to your stack. 
-  # The app can also be deployed in a different stack and be reused across CloudFormation stacks within your AWS account
-  AWSGlueTagger:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location:
-        ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
-        SemanticVersion: 1.1.0
-
   # Add your AWS Glue resources to the template. Can be any type of resource i.e. not limited to Jobs
   MyJobRole:
     Type: AWS::IAM::Role
@@ -38,33 +28,18 @@ Resources:
                 Action: "*"
                 Resource: "*"
   
-  MyJob1:
+  MyJob3:
     Type: AWS::Glue::Job
     Properties:
       Command:
         Name: glueetl
-        ScriptLocation: s3://aws-glue-scripts//prod-job1
+        ScriptLocation: s3://aws-glue-scripts//prod-job3
       DefaultArguments:
         "--job-bookmark-option": job-bookmark-enable
       ExecutionProperty:
         MaxConcurrentRuns: 2
       MaxRetries: 0
-      Name: cf-job1
-      Role:
-        Ref: MyJobRole
-
-  MyJob2:
-    Type: AWS::Glue::Job
-    Properties:
-      Command:
-        Name: glueetl
-        ScriptLocation: s3://aws-glue-scripts//prod-job2
-      DefaultArguments:
-        "--job-bookmark-option": job-bookmark-enable
-      ExecutionProperty:
-        MaxConcurrentRuns: 2
-      MaxRetries: 0
-      Name: cf-job2
+      Name: cf-job3
       Role:
         Ref: MyJobRole
 
@@ -76,20 +51,13 @@ Resources:
   GlueTaggerTestStack:
     Type: 'Custom::GlueTaggerTestStack'
     DependsOn:
-      - 'MyJob1'
-      - 'MyJob2'
+      - 'MyJob3'
     Properties:
       ServiceToken:
-        Fn::GetAtt:
-        - AWSGlueTagger
-        - Outputs.GlueTagger
+        Fn::ImportValue: GlueTaggerFunction
       ResourceArn:
         - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
-        - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob2}'
       Tags:
-        - Key: "cost_id"
-          Value: "0000"
-        - Key: "owner"
-          Value: "myorg"
-        - Key: "project"
-          Value: "myproject"
+        - 'cost_id=8888'
+        - 'owner=myorg'
+        - 'project=myproject'
