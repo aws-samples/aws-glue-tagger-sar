@@ -54,8 +54,8 @@ def get_tags(tags_from_props, tags_from_stack):
     def prepare_tags_for_tagging(tags):
         return {} if not tags else {tag['Key']: tag['Value'] for tag in tags}
     tags = [
-        *tags_from_props,
-        *tags_from_stack
+        *tags_from_stack,
+        *tags_from_props
     ]
     return prepare_tags_for_tagging(tags)
 
