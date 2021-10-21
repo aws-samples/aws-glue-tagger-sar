@@ -58,6 +58,9 @@ Resources:
       ResourceArn:
         - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
       Tags:
-        - 'cost_id=8888'
-        - 'owner=myorg'
-        - 'project=myproject'
+        - Key: "cost_id"
+          Value: "0000"
+        - Key: "owner"
+          Value: "myorg"
+        - Key: "project"
+          Value: "myproject"
