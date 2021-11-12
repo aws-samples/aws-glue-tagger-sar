@@ -14,7 +14,7 @@ AWSGlueTagger:
   Type: AWS::Serverless::Application
   Properties:
     Location:
-      SemanticVersion: 1.0.0
+      SemanticVersion: 1.1.0
       ApplicationId: arn:aws:serverlessrepo:us-east-1:621462903008:applications/aws-glue-tagger
 ```
 3. Or create a standalone AWS CloudFormation stack to reuse across different stacks (see examples/test_stack_only_sar.yaml, examples/test_stack_via_import.yaml).
@@ -71,8 +71,12 @@ GlueTaggerTestStack:
     ResourceArn:
       - !Sub 'arn:aws:glue:${AWS::Region}:${AWS::AccountId}:job/${MyJob1}'
     Tags:
-      - 'cost_id=0000'
-      - 'owner=myorg'
+      - Key: "cost_id"
+        Value: "0000"
+      - Key: "owner"
+        Value: "myorg"
+      - Key: "project"
+        Value: "myproject"
 ```
 You can find a complete example under [examples/test_including_stack.yaml](examples/test_stack_including_sar.yaml). If you want to deploy the test stack to your AWS accout, you can issue the following commands in your CLI. 
 
