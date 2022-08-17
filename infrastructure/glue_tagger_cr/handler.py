@@ -6,6 +6,7 @@ SPDX-License-Identifier: MIT-0
 import boto3
 import logging
 from crhelper import CfnResource
+import json
 
 
 cf = boto3.resource('cloudformation')
@@ -47,7 +48,10 @@ def get_tags_from_stack(stack_id):
 
 def get_tags_from_props(tags_from_props):
     logger.info(f'Tags from props {tags_from_props}')
-    return tags_from_props
+    try:
+        return(json.loads(tags_from_props))
+    except ValueError as e:
+        return tags_from_props
 
 
 def get_tags(tags_from_props, tags_from_stack):
